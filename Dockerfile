@@ -12,14 +12,6 @@ RUN apt-get -y update && \
 RUN apt-get -y install less gawk vim && \
     apt-get clean
 
-# make calceph
-RUN wget -q https://www.imcce.fr/content/medias/recherche/equipes/asd/calceph/calceph-2.3.2.tar.gz && \
-    tar zxvf calceph-2.3.2.tar.gz && \
-    cd calceph-2.3.2 && \
-    ./configure --prefix=/usr/local && \
-    make && make install && \
-    cd .. && rm -rf calceph-2.3.2 calceph-2.3.2.tar.gz
-
 WORKDIR /home/nanograv
 
 # copy in NANOGrav 11yr data
@@ -48,20 +40,13 @@ ENV LD_LIBRARY_PATH="/usr/local/lib"
 RUN git clone https://bitbucket.org/psrsoft/tempo2 && \
     cd tempo2 && \
     ./bootstrap && \
-    ./configure --prefix=/home/nanograv/.local --with-calceph=/usr/local && \
+    ./configure --prefix=/home/nanograv/.local && \
     make && make install && \
     mkdir -p /home/nanograv/.local/share/tempo2 && \
     cp -Rp T2runtime/* /home/nanograv/.local/share/tempo2/. && \
     cd .. && rm -rf tempo2
 
 ENV TEMPO2=/home/nanograv/.local/share/tempo2
-
-# get extra ephemeris
-RUN cd /home/nanograv/.local/share/tempo2/ephemeris && \
-    wget -q ftp://ssd.jpl.nasa.gov/pub/eph/planets/bsp/de435t.bsp && \
-    wget -q ftp://ssd.jpl.nasa.gov/pub/eph/planets/bsp/de436t.bsp && \
-    wget -q https://github.com/nanograv/tempo/raw/master/ephem/DE435.1950.2050 && \
-    wget -q https://github.com/nanograv/tempo/raw/master/ephem/DE436.1950.2050
 
 # install miniconda
 RUN wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
